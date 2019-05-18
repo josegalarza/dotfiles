@@ -23,26 +23,12 @@ export PATH="$HOME/.embulk/bin:$PATH"
 export PATH="$PATH:/Applications/Sublime Text.app/Contents/SharedSupport/bin"
 
 # Git branch
-parse_git_branch() { 
-  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ \1/ '
+parse_git_branch() {
+  git branch 2> /dev/null | grep '*' | awk '{ print $2" " }'
 }
 
 # Prompt
-# "username@hostname:/path/to/current/directory (git_branch) $ "
-#export PS1="\u@\h:$GREEN\w$YELLOW\$(parse_git_branch)$LIGHT_GRAY $ "
-# Alias - https://www.cyberciti.biz/tips/bash-aliases-mac-centos-linux-unix.html
-# "hh:mm /path/to/current/directory (git-branch) $ "
-#export PS1="\$(date +%H:%M) $GREEN\w$YELLOW\$(parse_git_branch) $LIGHT_GRAY$ "
-#
-# "hh:mm /path/to/current/directory (git-branch) $ "
-#export PS1="\$(date +%H:%M) $GREEN\w$YELLOW\$(parse_git_branch) $LIGHT_GRAY"
-#
-# "hh:mm /path/to/current/directory (git-branch) "
-#export PS1="\$(date +%H:%M) $GREEN\w$YELLOW\$(parse_git_branch) $LIGHT_GRAY"
-#
-# "hh:mm /path/to/current/directory git-branch "
-# git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ \1/ '
-export PS1="\$(date +%H:%M) $GREEN\w$YELLOW\$(parse_git_branch) $LIGHT_GRAY"
+export PS1="\$(date +%H:%M) $GREEN\w $YELLOW\$(parse_git_branch)$LIGHT_GRAY"
 
 alias c='clear'
 alias py=python
@@ -92,15 +78,15 @@ alias du='du -cH'
 alias prettyjson='python -m json.tool'
 # Pretty JSON from string
 prettyjson_s() {
-    echo "$1" | python -m json.tool
+  echo "$1" | python -m json.tool
 }
 # Pretty JSON from file
 prettyjson_f() {
-    python -m json.tool "$1"
+  python -m json.tool "$1"
 }
 # Pretty JSON from web API
 prettyjson_w() {
-    curl "$1" | python -m json.tool
+  curl "$1" | python -m json.tool
 }
 
 # Git alias
@@ -114,15 +100,15 @@ alias gp='git push'
 alias gco='git checkout'
 alias gcom='git checkout master'
 alias gb='git branch -vv'
-# gb(){
-#   git branch $1 && git checkout $1
-# }
 
 # History
 alias hs='history | grep'
 alias svi='sudo vi'
 
+# Unixtime
+#alias ts="python3 ~/canva/data-analytics-tools/misc/utcts.py"
+
 # MacDown
 macdown() {
-    "$(mdfind kMDItemCFBundleIdentifier=com.uranusjr.macdown | head -n1)/Contents/SharedSupport/bin/macdown" $@
+  "$(mdfind kMDItemCFBundleIdentifier=com.uranusjr.macdown | head -n1)/Contents/SharedSupport/bin/macdown" $@
 }
