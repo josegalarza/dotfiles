@@ -94,21 +94,6 @@ git_branch_new() {
 }
 alias gbn='git_branch_new' # create new branch, check it out, and set upstream
 
-# Pretty print JSON - use: echo '{"foo": "bar"}' | prettyjson
-alias prettyjson='python -m json.tool'
-# Pretty JSON from string
-prettyjson_s() {
-  echo "$1" | python -m json.tool
-}
-# Pretty JSON from file
-prettyjson_f() {
-  python -m json.tool "$1"
-}
-# Pretty JSON from web API
-prettyjson_w() {
-  curl "$1" | python -m json.tool
-}
-
 #25: Get system memory, cpu usage, and gpu memory info quickly
 ## Pass options to free
 #alias meminfo='free -m -l -t'
