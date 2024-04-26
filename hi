@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+git_update_repo() {
+  for repo in "$@"; do
+    echo "Updating git repo: $repo..."
+    cd ~/work/$repo && git pull >/dev/null 2>&1
+  done
+}
+
+# Function to open Chrome with specified tabs
+open_chrome_tabs() {
+  echo "Opening: Chrome..."
+  chrome_path="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  tabs="$@"
+  "$chrome_path" --args $tabs >/dev/null 2>&1
+}
+
+# Function to open Slack chat
+open_slack_chat() {
+  echo "Opening: Slack..."
+  slack_path="/Applications/Slack.app/Contents/MacOS/Slack"
+  "$slack_path" "$@" >/dev/null 2>&1
+}
+
+# Function to open Zoom
+open_zoom() {
+  echo "Opening: Zoom..." 
+  # Check if Zoom is already running
+  if pgrep -x "zoom.us" > /dev/null; then
+    echo "Zoom is already running."
+  else
+    zoom_path="/Applications/zoom.us.app/Contents/MacOS/zoom.us"
+    "$zoom_path" "$@" >/dev/null 2>&1 &
+  fi
+}
+
+gday() {
+  sleep 1 && echo "Have a nice and productive day! :)"
+}
+
+main() {
+  git_update_repo "data-warehouse" &
+  git_update_repo "infrastructure" &
+  open_chrome_tabs "https://calendar.google.com" "https://mail.google.com" "https://canva.okta.com" #"https://app.slack.com/client/E029M44Q08M/C05FUFB0JP7"
+  open_slack_chat &
+  open_zoom &
+  gday
+}
+
+main
+
