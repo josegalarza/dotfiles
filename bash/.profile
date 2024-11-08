@@ -17,8 +17,11 @@ eval "$(direnv hook $(echo $0))"
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
-# command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
+
+# pipenv
+export PATH=$PATH:~/Library/Python/3.9/bin
 
 
 # PATH ########################################################################
@@ -39,10 +42,81 @@ GREEN="\[\033[0;32m\]"
 LIGHT_GREEN="\[\033[1;32m\]"
 LIGHT_GRAY="\[\033[0;37m\]"
 LIGHT_WHITE="\[\033[0;97m\]"
+ORANGE="\[\033[38;5;214m\]"
 
 # For setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
+
+
+# BITCOIN #####################################################################
+# Function to fetch Bitcoin price from CoinGecko and store it in an environment variable
+function refresh_btc_json_cache() {
+    # Path to the cache file (we're using environment variables here)
+    local cache_var_name="BTC_JSON_CACHE"
+
+    # Get the current timestamp (in seconds)
+    local current_time=$(date +%s)
+
+    # Check if the cache is empty or needs to be refreshed
+    if [[ -z "${!cache_var_name}" ]]; then
+        # Cache is empty, make an API request
+        fetch_btc_data
+    else
+        # Parse the last updated timestamp from the cached JSON
+        local last_updated_at=$(echo "${!cache_var_name}" | jq -r '.bitcoin.last_updated_at')
+
+        # Calculate the time difference in seconds
+        local time_diff=$((current_time - last_updated_at))
+
+        # If the cached data is older than 30 minutes (1800 seconds), refresh it
+        # API rate is "~30 calls per minutes" -> ~1 call / 2 secs
+        # https://docs.coingecko.com/reference/common-errors-rate-limit#rate-limit
+        #
+        if [[ $time_diff -gt 2 ]]; then
+            fetch_btc_data
+        fi
+    fi
+}
+
+# Function to fetch the data from the CoinGecko API and store it in an environment variable
+function fetch_btc_data() {
+    # Fetch the full JSON response
+    local btc_json=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true")
+
+    # Store the full JSON in an environment variable
+    export BTC_JSON_CACHE="$btc_json"
+
+    # Optionally, you can also print the data or the price:
+    #local price=$(echo "$btc_json" | jq -r '.bitcoin.usd')
+    #echo "Updated BTC Price: $price"
+}
+
+# Function to extract and format the BTC price, 24h change, and 24h percentage change for the prompt
+function print_btc_info() {
+    # Refresh BTC data
+    refresh_btc_json_cache
+
+    local price=$(echo "$BTC_JSON_CACHE" | jq -r '.bitcoin.usd')
+    local change_percentage=$(echo "$BTC_JSON_CACHE" | jq -r '.bitcoin.usd_24h_change')
+
+    # Determine if the change is positive or negative
+    if [[ "$change_percentage" > 0 ]]; then
+        change_symbol="+"
+    else
+        change_symbol="-"
+    fi
+
+    # Format price with 2 decimal places and add the dollar sign
+    local price_formatted=$(printf "$%'0.2f" "$price")
+
+    # Format the percentage change with 2 decimals
+    local change_percentage_formatted=$(printf "%.2f%%" "$change_percentage")
+
+    # Apply orange color
+    # echo -e "\033[38;5;214m$price_formatted\033[0m$ change_symbol\033[38;5;214m$change_percentage_formatted\033[0m$ (\033[38;5;214m$change_symbol$change_percentage_formatted%\033[0m)"
+    echo -e "\033[38;5;214m$price_formatted $change_symbol$change_percentage_formatted\033[0m"
+}
 
 
 # PROMPT ######################################################################
@@ -51,7 +125,8 @@ HISTFILESIZE=2000
 parse_git_branch() {
   git branch 2> /dev/null | grep '*' | awk '{ print $2" " }'
 }
-export PS1="\$(date +%H:%M) $GREEN\w $YELLOW\$(parse_git_branch)$LIGHT_GRAY"
+
+export PS1="\$(print_btc_info) $(date +%H:%M) $GREEN\w $YELLOW\$(parse_git_branch)$LIGHT_GRAY"
 
 
 # ALIAS #######################################################################
@@ -59,6 +134,7 @@ export PS1="\$(date +%H:%M) $GREEN\w $YELLOW\$(parse_git_branch)$LIGHT_GRAY"
 alias c='clear'
 alias py=python
 alias py3=python3
+alias pip="python3 -m pip"
 
 # ls commands
 alias l=ls
