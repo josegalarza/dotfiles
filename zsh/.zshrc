@@ -10,15 +10,6 @@ GREEN="%F{green}"
 LIGHT_GREEN="%F{lightgreen}"
 LIGHT_GRAY="%F{gray}"
 LIGHT_WHITE="%F{white}"
-ORANGE="%F{orange}"
-# # bash
-# RED="\[\033[0;31m\]"
-# YELLOW="\[\033[0;33m\]"
-# LIGHT_YELLOW="\[\033[1;93m\]"
-# GREEN="\[\033[0;32m\]"
-# LIGHT_GREEN="\[\033[1;32m\]"
-# LIGHT_GRAY="\[\033[0;37m\]"
-# LIGHT_WHITE="\[\033[0;97m\]"
 
 # Define functions for Bitcoin Price display
 function refresh_btc_json_cache() {
