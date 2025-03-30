@@ -31,21 +31,18 @@ function fetch_btc_data() {
 }
 
 function print_btc_info() {
+    # Note: requires 'jq'
     refresh_btc_json_cache
-
     local price=$(echo "$BTC_JSON_CACHE" | jq -r '.bitcoin.usd')
     local change_percentage=$(echo "$BTC_JSON_CACHE" | jq -r '.bitcoin.usd_24h_change')
-
     if [[ "$change_percentage" > 0 ]]; then
         change_symbol="+"
     else
         change_symbol="-"
     fi
-
     local price_formatted=$(printf "$%'0.2f" "$price")
     local change_percentage_formatted=$(printf "%.2f%%" "$change_percentage")
-
-    echo -e "${ORANGE}$price_formatted $change_symbol$change_percentage_formatted${RESET}"
+    echo -e "%F{orange}$price_formatted $change_symbol$change_percentage_formatted%f"
 }
 
 # Git branch parsing function
