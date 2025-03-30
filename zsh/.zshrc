@@ -1,8 +1,6 @@
 # .zshrc
 
 # Colors for prompt (Zsh uses $PROMPT and $RPROMPT)
-# zsh
-# autoload -U colors && colors
 RED="%F{red}"
 YELLOW="%F{yellow}"
 LIGHT_YELLOW="%F{yellow}%b"
