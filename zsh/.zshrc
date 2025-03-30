@@ -58,14 +58,6 @@ function parse_git_branch() {
   fi
 }
 
-# # Ensure parse_git_branch is autoloaded
-# autoload -Uz parse_git_branch
-
-# # Use precmd to ensure the function is evaluated dynamically:
-# precmd() {
-#   parse_git_branch
-# }
-
 # Enable prompt substitution to allow functions like parse_git_branch
 setopt PROMPT_SUBST
 
